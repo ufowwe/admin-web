@@ -57,7 +57,7 @@
 			</el-form-item>
 		</el-form>
 	</el-col>-->
-	<el-table :data="commer" height="270" border style="width: 100%">
+	<el-table :data="chantInfo" height="600" border style="width: 100%">
 		<el-table-column prop="id" label="id">
 		</el-table-column>
 		<el-table-column prop="fullName" label="商户名">
@@ -89,8 +89,8 @@
 </template>
 
 <script>
-//	import getCommerList from '../../api/api';
-	import {data} from '../../api/api.js';
+	import {message} from '../../api/api';
+	
 	export default {
 		data() {
 			return {
@@ -99,8 +99,8 @@
 				},*/
 				total: 0,
 				pageNo: 1,
-				commer:[],
-				pageSize:4
+				chantInfo:[],
+				pageSize:10
 				/*form: {
 					name: '',
 					region: '',
@@ -135,21 +135,17 @@
 					//NProgress.done();
 				});
 			},*/
-			getCommer() {
+			getChantInfo() {
 				let para = {
 					pageNo: this.pageNo,
 					pageSize : this.pageSize 
 				};
 				
-				data.pageMerchantInfo(para).then((res)=>{
-					console.log(111+res);
+				message.pageMerchantInfo(para).then((res)=>{
+					this.chantInfo = res.data.rows;
+					
 				}).catch((error)=>{
-					console.log(222+error);
-				})
-				data.add(para).then((res)=>{
-					console.log(333+res);
-				}).catch((error)=>{
-					console.log(444+error);
+					console.log(error);
 				})
 ////				$ajax.get('/api/admin/merchant/manage/pageMerchantInfo',{params:para})
 //		        .then(
@@ -177,7 +173,7 @@
 			}*/
 		},
 		created() {
-			this.getCommer();
+			this.getChantInfo();
 		}
 	}
 

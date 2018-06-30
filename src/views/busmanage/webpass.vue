@@ -1,7 +1,7 @@
 <template>
 	<section>
 		<!--工具条-->
-		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+		<!--<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
 					<el-input v-model="filters.name" placeholder="姓名"></el-input>
@@ -9,66 +9,86 @@
 				<el-form-item>
 					<el-button type="primary" v-on:click="getUser">查询</el-button>
 				</el-form-item>
-			</el-form>
-		</el-col>
+			</el-form>v-loading="loading"
+		</el-col>--> 
 
 		<!--列表-->
 		<template>
-			<el-table :data="users" highlight-current-row v-loading="loading" style="width: 100%;">
-				<el-table-column type="index" width="60">
+			<el-table :data="chantUrl" highlight-current-row style="width: 100%;">
+				<el-table-column prop="id" label="id">
 				</el-table-column>
-				<el-table-column prop="name" label="姓名" width="120" sortable>
+				<el-table-column prop="auditorId" label="商户ID">
 				</el-table-column>
-				<el-table-column prop="sex" label="性别" width="100" :formatter="formatSex" sortable>
+				<el-table-column prop="url" label="商户待审核URL">
 				</el-table-column>
-				<el-table-column prop="age" label="年龄" width="100" sortable>
+				<el-table-column prop="status" label="状态">
 				</el-table-column>
-				<el-table-column prop="birth" label="生日" width="120" sortable>
+				<el-table-column prop="auditorTime" label="商户提交时间">
 				</el-table-column>
-				<el-table-column prop="addr" label="地址" min-width="180" sortable>
+				<el-table-column prop="merchantId" label="审核人ID">
+				</el-table-column>
+				<el-table-column prop="createTime" label="审核时间">
+				</el-table-column>
+				<el-table-column prop="auditOpinion" label="审核意见">
 				</el-table-column>
 			</el-table>
+			<el-pagination @size-change="handleSizeChange" 
+				@current-change="handleCurrentChange" 
+				:current-page="pageindex" 
+				:page-sizes="[10,50, 200, 300, 400]" 
+				:page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" 
+				:total="total"> </el-pagination>
 		</template>
 
 	</section>
 </template>
 <script>
-	import { getUserList } from '../../api/api';
-	//import NProgress from 'nprogress'
+	import { webpass } from '../../api/api';
+	
 	export default {
 		data() {
 			return {
-				filters: {
-					name: ''
-				},
-				loading: false,
-				users: [
-				]
+				chantUrl:[],
+		        pageindex:1,
+				pagesize:10,
+				total:0
 			}
 		},
 		methods: {
-			//性别显示转换
-			formatSex: function (row, column) {
-				return row.sex == 1 ? '男' : row.sex == 0 ? '女' : '未知';
+			onSubmit() {
+				console.log('submit!');
 			},
-			//获取用户列表
-			getUser: function () {
+			//获取商户url列表
+			getChantUrl() {
 				let para = {
-					name: this.filters.name
+					pageNo: this.pageindex,
+					pageSize : this.pagesize 
 				};
-				this.loading = true;
-				//NProgress.start();
-				getUserList(para).then((res) => {
-					this.users = res.data.users;
-					this.loading = false;
-					//NProgress.done();
-				});
-			}
+				
+				webpass.pageMerchantUrl(para).then((res)=>{
+					console.log(res.data);
+					this.chantUrl = res.data.rows;
+					this.total = res.data.totalCount;
+					
+				}).catch((error)=>{
+					console.log(error);
+				})
+			},
+			handleSizeChange(val) {
+		       console.log('每页 ${val} 条');
+		       this.pagesize = val;
+		       this.getChantUrl();
+		    },
+		    handleCurrentChange(val) {
+		       console.log('当前页: ${val}');
+		       this.pageindex = val;
+		       this.getChantUrl();
+		    }
 		},
-		mounted() {
-			this.getUser();
+		created() {
+			this.getChantUrl();
 		}
-	};
+	}
 
 </script>
 
